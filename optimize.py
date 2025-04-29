@@ -194,13 +194,14 @@ if __name__ == "__main__":
         ### FUNCTIONS HERE 
         raise ValueError(f"Objective function {args.objective} not recognized.")
 
-    ref_mol = Chem.SDMolSupplier(args.ref_ligand)[0]
+    ref_mols = Chem.SDMolSupplier(args.ref_ligand)
 
     # Store molecules in history dataframe 
     buffer = pd.DataFrame(columns=['generation', 'score', 'fate' 'mol', 'smiles'])
 
     # Population initialization
-    buffer=buffer._append({'generation': 0,
+    for ref_mol in ref_mols:
+        buffer=buffer._append({'generation': 0,
                             'score': objective_function(ref_mol),
                             'fate': 'initial', 'mol': ref_mol,
                             'smiles': Chem.MolToSmiles(ref_mol)}, ignore_index=True)
@@ -208,7 +209,8 @@ if __name__ == "__main__":
     for generation_idx in range(evolution_steps):
 
         if generation_idx == 0:
-            molecules = buffer['mol'].tolist() * population_size
+            top_k_molecules=buffer.sort_values(by='score', ascending=False)['mol'].tolist()[:top_k]
+            molecules = top_k_molecules * (population_size // len(top_k_molecules) + 1)[:population_size]
         else:
             # Select top k molecules from previous generation
             previous_gen = buffer[buffer['generation'] == generation_idx]
