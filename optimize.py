@@ -209,13 +209,15 @@ if __name__ == "__main__":
     for generation_idx in range(evolution_steps):
 
         if generation_idx == 0:
-            top_k_molecules=buffer.sort_values(by='score', ascending=False)['mol'].tolist()[:top_k]
-            molecules = top_k_molecules * (population_size // len(top_k_molecules) + 1)[:population_size]
+            top_k_molecules=buffer.sort_values(by='score', ascending=False)['mol'].tolist()[:population_size]
+            molecules = top_k_molecules * ((population_size-1)//len(top_k_molecules)+1)
+            molecules=molecules[:population_size]
         else:
             # Select top k molecules from previous generation
             previous_gen = buffer[buffer['generation'] == generation_idx]
             top_k_molecules = previous_gen.nlargest(top_k, 'score')['mol'].tolist()
-            molecules = top_k_molecules * (population_size // top_k)
+            molecules = top_k_molecules * ((population_size-1)//top_k+1)
+            molecules=molecules[:population_size]
 
             # Update the fate of selected top k molecules in the buffer
             buffer.loc[buffer['generation'] == generation_idx, 'fate'] = 'survived'
