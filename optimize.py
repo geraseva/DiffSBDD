@@ -154,7 +154,7 @@ if __name__ == "__main__":
     parser.add_argument('--checkpoint', type=Path, default='checkpoints/crossdocked_fullatom_cond.ckpt')
     parser.add_argument('--pdbfile', type=str, default='example/5ndu.pdb')
     parser.add_argument('--ref_ligand', type=str, default='example/5ndu_linked_mols.sdf')
-    parser.add_argument('--objective', type=str, default='sa', choices={'qed', 'sa'})
+    parser.add_argument('--objective', type=str, default='sa', choices={'qed', 'sa','gnina'})
     parser.add_argument('--timesteps', type=int, default=100)
     parser.add_argument('--population_size', type=int, default=100)
     parser.add_argument('--evolution_steps', type=int, default=10)
@@ -189,6 +189,9 @@ if __name__ == "__main__":
         objective_function = MoleculeProperties().calculate_qed
     elif args.objective == 'sa':
         objective_function = MoleculeProperties().calculate_sa
+    elif args.objective == 'gnina':
+        from analysis.gnina import Gnina
+        objective_function = Gnina(args.pdbfile).affinity
     else:
         ### IMPLEMENT YOUR OWN OBJECTIVE
         ### FUNCTIONS HERE 
